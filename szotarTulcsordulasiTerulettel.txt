@@ -1,0 +1,176 @@
+using System;
+namespace OE.ALGA.Adatszerkezetek
+{
+    // 6. heti labor feladat - Tesztek: 06_SzotarTesztek.cs
+    
+    public class SzotarElem<K, T>
+    {
+        public K kulcs;
+        public T tart;
+        public SzotarElem(K kulcs, T tart)
+        {
+            this.kulcs = kulcs;
+            this.tart = tart;
+        }
+    }
+    
+    public class HasitoSzotarTulcsordulasiTerulettel<K, T> : Szotar<K, T>
+    {
+        private SzotarElem<K, T>[] E;
+        private Func<K, int> h;
+        private LancoltLista<SzotarElem<K, T>> U;
+        private LancoltLista<SzotarElem<K, T>> egyediek; // Új mező
+ 
+        public HasitoSzotarTulcsordulasiTerulettel(int meret, Func<K, int> hasitoFuggveny)
+        {
+            E = new SzotarElem<K, T>[meret];
+            // Kompozit függvény: hasítás + maradékos osztás
+            h = (x) => Math.Abs(hasitoFuggveny(x)) % E.Length;
+            U = new LancoltLista<SzotarElem<K, T>>();
+            egyediek = new LancoltLista<SzotarElem<K, T>>(); // Inicializálás
+        }
+        
+        public HasitoSzotarTulcsordulasiTerulettel(int meret)
+            : this(meret, (x) => x.GetHashCode())
+        {
+        }
+        
+        public void Felszabadit()
+        {
+            E = null;
+            //U.Felszabadit();
+        }
+     
+        private SzotarElem<K, T> KulcsKeres(K kulcs)
+        {
+            int index = h(kulcs);
+            if (E[index] != null && E[index].kulcs.Equals(kulcs))
+            {
+                return E[index];
+            }
+   
+            for (int i = 0; i < U.Elemszam; i++)
+            {
+                SzotarElem<K, T> elem = U.Kiolvas(i);
+                if (elem.kulcs.Equals(kulcs))
+                {
+                    return elem;
+                }
+            }
+            return null;
+        }
+        
+        public void Beir(K kulcs, T ertek)
+        {
+            SzotarElem<K, T> meglevo = KulcsKeres(kulcs);
+            if (meglevo != null)
+            {
+                // Már létező kulcs, csak módosítjuk
+                meglevo.tart = ertek;
+                return;
+            }
+            
+            SzotarElem<K, T> ujElem = new SzotarElem<K, T>(kulcs, ertek);
+            int index = h(kulcs);
+            
+            if (E[index] == null)
+            {
+                // Nincs kulcsütközés
+                E[index] = ujElem;
+                egyediek.Hozzafuz(ujElem); // Egyedi listába is betesszük
+            }
+            else
+            {
+                // Kulcsütközés történt
+                U.Hozzafuz(ujElem);
+            }
+        }
+        
+        public T Kiolvas(K kulcs)
+        {
+            SzotarElem<K, T> elem = KulcsKeres(kulcs);
+            if (elem != null)
+            {
+                return elem.tart;
+            }
+            else
+            {
+                throw new HibasKulcsKivetel();
+            }
+        }
+        
+        public void Torol(K kulcs)
+        {
+            int index = h(kulcs);
+            if (E[index] != null && E[index].kulcs.Equals(kulcs))
+            {
+                E[index] = null;
+                return;
+            }
+            
+            for (int i = 0; i < U.Elemszam; i++)
+            {
+                SzotarElem<K, T> elem = U.Kiolvas(i);
+                if (elem.kulcs.Equals(kulcs))
+                {
+                    U.Torol(elem);
+                    return;
+                }
+            }
+            
+            throw new HibasKulcsKivetel();
+        }
+        
+        // Új metódus: EgyediKulcsok
+        public Lista<K> EgyediKulcsok(bool egyszeri, bool aktualis)
+        {
+            Lista<K> eredmeny = new LancoltLista<K>();
+            Lista<K> marLatott = new LancoltLista<K>(); // Egyszeri ellenőrzéshez
+            
+            for (int i = 0; i < egyediek.Elemszam; i++)
+            {
+                SzotarElem<K, T> elem = egyediek.Kiolvas(i);
+                K kulcs = elem.kulcs;
+                
+                // Egyszeri paraméter kezelése
+                if (egyszeri)
+                {
+                    bool marBenneVan = false;
+                    for (int j = 0; j < marLatott.Elemszam; j++)
+                    {
+                        if (marLatott.Kiolvas(j).Equals(kulcs))
+                        {
+                            marBenneVan = true;
+                            break;
+                        }
+                    }
+                    if (marBenneVan)
+                    {
+                        continue; // Már volt ez a kulcs, kihagyjuk
+                    }
+                }
+                
+                // Aktualis paraméter kezelése
+                if (aktualis)
+                {
+                    // Ellenőrizzük, hogy a kulcs még benne van-e a szótárban
+                    if (KulcsKeres(kulcs) == null)
+                    {
+                        continue; // Már nincs benne, kihagyjuk
+                    }
+                }
+                
+                // Hozzáadjuk az eredményhez
+                eredmeny.Hozzafuz(kulcs);
+                
+                // Ha egyszeri, akkor megjegyezzük
+                if (egyszeri)
+                {
+                    marLatott.Hozzafuz(kulcs);
+                }
+            }
+            
+            return eredmeny;
+        }
+    }
+}

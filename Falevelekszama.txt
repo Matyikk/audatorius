@@ -1,0 +1,53 @@
+using System;
+using OE.ALGA.Adatszerkezetek.OE.ALGA.Adatszerkezetek;
+
+namespace OE.ALGA.Adatszerkezetek
+{
+    namespace OE.ALGA.Adatszerkezetek
+    {
+        // Kereses osztály - bináris keresőfa levelek számolásával
+        public class Kereses<T> : FaHalmaz<T> where T : IComparable<T>
+        {
+            // Levelszam tulajdonság - visszaadja a levelek számát
+            public int Levelszam
+            {
+                get
+                {
+                    return LevelekSzama(GetGyoker());
+                }
+            }
+
+            // Privát segédmetódus a levelek számolásához
+            private int LevelekSzama(FaElem<T> p)
+            {
+                // Ha üres fa vagy null csomópont
+                if (p == null)
+                {
+                    return 0;
+                }
+
+                // Ha levél (nincs bal és jobb gyereke)
+                if (p.bal == null && p.jobb == null)
+                {
+                    return 1;
+                }
+
+                // Rekurzívan számoljuk a bal és jobb részfa leveleit
+                return LevelekSzama(p.bal) + LevelekSzama(p.jobb);
+            }
+
+            // Segédmetódus a gyökér eléréséhez
+            // Sajnos a FaHalmaz gyoker mezője private, így reflection-t használunk
+            // vagy módosítani kell az ősosztályt protected-re
+            private FaElem<T> GetGyoker()
+            {
+                // Reflection használata a private gyoker mező eléréséhez
+                var gyokerField = typeof(FaHalmaz<T>).GetField("gyoker", 
+                    System.Reflection.BindingFlags.NonPublic | 
+                    System.Reflection.BindingFlags.Instance);
+                
+                return (FaElem<T>)gyokerField.GetValue(this);
+            }
+        }
+    }
+}

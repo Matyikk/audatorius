@@ -1,0 +1,33 @@
+public static class KupacFeladatok
+{
+    public static T[] KLegnagyobb<T>(T[] tomb, int k)
+        where T : IComparable<T>
+    {
+        if (k < 0 || k > tomb.Length)
+        {
+            throw new ArgumentException("Érvénytelen k");
+        }
+
+        KupacPrioritasosSor<T> kupac =
+            new KupacPrioritasosSor<T>(
+                tomb.Length,
+                (x, y) => x.CompareTo(y) > 0
+            );
+
+        // betöltjük a kupacba
+        for (int i = 0; i < tomb.Length; i++)
+        {
+            kupac.Sorba(tomb[i]);
+        }
+
+        T[] eredmeny = new T[k];
+
+        // k legnagyobb kivétele
+        for (int i = 0; i < k; i++)
+        {
+            eredmeny[i] = kupac.Sorbol();
+        }
+
+        return eredmeny;
+    }
+}

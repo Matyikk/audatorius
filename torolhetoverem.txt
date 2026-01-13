@@ -1,0 +1,28 @@
+public class TorolhetoVerem<T> : TombVerem<T>
+{
+    public TorolhetoVerem(int meret) : base(meret)
+    {
+    }
+
+    public void Torol(T ertek)
+    {
+        // Ideiglenes verem létrehozása
+        TombVerem<T> ideiglenes = new TombVerem<T>(E.Length);
+        
+        // Átmásoljuk az elemeket, kihagyva a törlendőket
+        while (!Ures)
+        {
+            T elem = Verembol();
+            if (!elem.Equals(ertek))
+            {
+                ideiglenes.Verembe(elem);
+            }
+        }
+        
+        // Visszamásoljuk az elemeket az eredeti verembe
+        while (!ideiglenes.Ures)
+        {
+            Verembe(ideiglenes.Verembol());
+        }
+    }
+}

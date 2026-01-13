@@ -1,0 +1,18 @@
+public static class GrafAnalizis
+{
+    public static int EgyGyerekesCsucsokSzama(CsucsmatrixSulyozatlanEgeszGraf g)
+    {
+        int db = 0;
+
+        g.Csucsok.Bejar(csucs =>
+        {
+            int szomszedok = g.Szomszedai(csucs).Elemszam;
+            if (szomszedok == 1)
+            {
+                db++;
+            }
+        });
+
+        return db;
+    }
+}

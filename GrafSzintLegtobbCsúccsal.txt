@@ -1,0 +1,55 @@
+public static class GrafAnalizis
+{
+    public static int LegtobbCsucsSzint(CsucsmatrixSulyozatlanEgeszGraf g, int start)
+    {
+        // BFS távolságok számolásához
+        FaHalmaz<int> feldolgozott = new FaHalmaz<int>();
+        Szotar<int, int> tavolsag = new HasitoSzotarTulcsordulasiTerulettel<int, int>(g.Csucsok.Elemszam + 10);
+
+        TombSor<int> sor = new TombSor<int>(g.CsucsokSzama);
+
+        sor.Sorba(start);
+        feldolgozott.Beszur(start);
+        tavolsag.Beir(start, 0);
+
+        while (!sor.Ures)
+        {
+            int aktualis = sor.Sorbol();
+            int aktTav = tavolsag.Kiolvas(aktualis);
+
+            g.Szomszedai(aktualis).Bejar(szomszed =>
+            {
+                if (!feldolgozott.Eleme(szomszed))
+                {
+                    sor.Sorba(szomszed);
+                    feldolgozott.Beszur(szomszed);
+                    tavolsag.Beir(szomszed, aktTav + 1);
+                }
+            });
+        }
+
+        // Most megszámoljuk, melyik szintre esik a legtöbb csúcs
+        int maxSzint = 0;
+        Szotar<int, int> szintSzamlalo = new HasitoSzotarTulcsordulasiTerulettel<int, int>(g.CsucsokSzama + 10);
+
+        g.Csucsok.Bejar(csucs =>
+        {
+            int szint = tavolsag.Kiolvas(csucs);
+            if (!szintSzamlalo.Tartalmaz(szint))
+            {
+                szintSzamlalo.Beir(szint, 1);
+            }
+            else
+            {
+                szintSzamlalo.Beir(szint, szintSzamlalo.Kiolvas(szint) + 1);
+            }
+
+            if (szintSzamlalo.Kiolvas(szint) > szintSzamlalo.Kiolvas(maxSzint))
+            {
+                maxSzint = szint;
+            }
+        });
+
+        return maxSzint;
+    }
+}

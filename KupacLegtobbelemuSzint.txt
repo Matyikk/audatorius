@@ -1,0 +1,30 @@
+public static class KupacElemzes
+{
+    public static int LegtobbElemetTartalmazoSzint<T>(Kupac<T> kupac)
+    {
+        if (kupac.n == 0)
+        {
+            throw new NincsElemKivetel();
+        }
+
+        int maxSzint = (int)Math.Floor(Math.Log2(kupac.n));
+        int[] szamlalo = new int[maxSzint + 1];
+
+        for (int i = 0; i < kupac.n; i++)
+        {
+            int szint = (int)Math.Floor(Math.Log2(i + 1));
+            szamlalo[szint]++;
+        }
+
+        int eredmenySzint = 0;
+        for (int i = 1; i < szamlalo.Length; i++)
+        {
+            if (szamlalo[i] > szamlalo[eredmenySzint])
+            {
+                eredmenySzint = i;
+            }
+        }
+
+        return eredmenySzint;
+    }
+}

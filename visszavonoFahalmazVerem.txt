@@ -1,0 +1,73 @@
+using System;
+
+namespace OE.ALGA.Adatszerkezetek
+{
+    // TorolhetoVerem<T> a TombVerem<T> leszármazottja
+    public class TorolhetoVerem<T> : TombVerem<T>
+    {
+        public TorolhetoVerem(int meret) : base(meret)
+        {
+        }
+
+        // Törli az összes ertek értékű elemet a veremből
+        public void Torol(T ertek)
+        {
+            int ujN = 0;
+
+            // újrarendezés: csak azok maradnak, amelyek nem egyeznek
+            for (int i = 0; i < n; i++)
+            {
+                if (!E[i].Equals(ertek))
+                {
+                    E[ujN++] = E[i];
+                }
+            }
+
+            n = ujN; // új elemszám
+        }
+    }
+
+    // VisszavonoFaHalmaz<T> a FaHalmaz<T> leszármazottja
+    public class VisszavonoFaHalmaz<T> : FaHalmaz<T> where T : IComparable<T>
+    {
+        private TorolhetoVerem<T> undoVerem;
+
+        public VisszavonoFaHalmaz(int veremMeret)
+        {
+            undoVerem = new TorolhetoVerem<T>(veremMeret);
+        }
+
+        // Felülírjuk a Beszur metódust
+        public new void Beszur(T ertek)
+        {
+            int elsoN = undoVerem.Elemszam; // verem aktuális elemszáma
+
+            base.Beszur(ertek);
+
+            // ha ténylegesen beszúrtuk (új elem lett)
+            if (!undoVerem.Eleme(ertek))
+            {
+                undoVerem.Sorba(ertek);
+            }
+        }
+
+        // Visszavonás
+        public void Visszavon()
+        {
+            if (undoVerem.Ures)
+            {
+                throw new NincsMitVisszavonniKivetel();
+            }
+
+            T ertek = undoVerem.Sorbol();
+            base.Torol(ertek); // törlés a fából
+        }
+
+        // Felülírjuk a Torol metódust, hogy a veremből is törölje
+        public new void Torol(T ertek)
+        {
+            base.Torol(ertek);       // törlés a fából
+            undoVerem.Torol(ertek);  // törlés a veremből
+        }
+    }
+}

@@ -1,0 +1,56 @@
+public class GrafKereses<T, E> : SulyozottGraf<T, E>
+    where T : IComparable<T>
+    where E : SulyozottGrafEl<T>
+{
+    private SulyozottGraf<T, E> graf;
+
+    public GrafKereses(SulyozottGraf<T, E> graf)
+    {
+        this.graf = graf;
+    }
+
+    public override Halmaz<T> Csucsok => graf.Csucsok;
+
+    public override Halmaz<E> Elek => graf.Elek;
+
+    public override void UjEl(T honnan, T hova, float suly)
+    {
+        graf.UjEl(honnan, hova, suly);
+    }
+
+    public override bool VezetEl(T honnan, T hova)
+    {
+        return graf.VezetEl(honnan, hova);
+    }
+
+    public override float Suly(T honnan, T hova)
+    {
+        return graf.Suly(honnan, hova);
+    }
+
+    public override Halmaz<T> Szomszedai(T csucs)
+    {
+        return graf.Szomszedai(csucs);
+    }
+
+    /// <summary>
+    /// Egy élű csúcsok száma
+    /// </summary>
+    public int EgyEluCsucs
+    {
+        get
+        {
+            int db = 0;
+
+            Csucsok.Bejar(csucs =>
+            {
+                if (Szomszedai(csucs).Elemszam == 1)
+                {
+                    db++;
+                }
+            });
+
+            return db;
+        }
+    }
+}

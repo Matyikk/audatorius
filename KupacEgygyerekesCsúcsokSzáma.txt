@@ -1,0 +1,20 @@
+public static class KupacElemzes
+{
+    public static int EgyGyerekesCsucsokSzama<T>(Kupac<T> kupac)
+    {
+        int db = 0;
+
+        for (int i = 0; i < kupac.n; i++)
+        {
+            bool vanBal = Kupac<T>.Bal(i) < kupac.n;
+            bool vanJobb = Kupac<T>.Jobb(i) < kupac.n;
+
+            if (vanBal && !vanJobb)
+            {
+                db++;
+            }
+        }
+
+        return db;
+    }
+}
